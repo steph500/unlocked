@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --lime: #c8ff2f;
+  --olive: #7d8540;
+  --ink: #020303;
+  --coal: #090b0c;
+  --panel: #101211;
+  --line: rgba(200, 255, 47, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #020303;
+  color: #ffffff;
+  font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+.brand-font {
+  font-family: Impact, "Arial Black", "Avenir Next Condensed", sans-serif;
+}
+
+::selection {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.figma-screen {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(125, 133, 64, 0.16), transparent 18rem),
+    linear-gradient(180deg, #070908 0%, #020303 48%, #000 100%);
+}
+
+.ui-panel {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+    rgba(7, 9, 8, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.ui-panel-hard {
+  border: 1px solid rgba(200, 255, 47, 0.16);
+  background: linear-gradient(180deg, rgba(35, 38, 25, 0.84), rgba(6, 7, 7, 0.95));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035), 0 24px 70px rgba(0, 0, 0, 0.52);
+}
+
+.image-veil {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.84) 0%, rgba(0, 0, 0, 0.5) 34%, rgba(0, 0, 0, 0.88) 100%),
+    radial-gradient(circle at 72% 16%, rgba(200, 255, 47, 0.18), transparent 15rem);
+}
+
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, transparent 0 8px, rgba(255, 255, 255, 0.018) 9px 10px);
+  mix-blend-mode: screen;
+}
+
+.corner-tag {
+  position: relative;
+}
+
+.corner-tag::before,
+.corner-tag::after {
+  content: "";
+  position: absolute;
+  height: 11px;
+  width: 11px;
+  border-color: var(--lime);
+  opacity: 0.75;
+}
+
+.corner-tag::before {
+  left: 12px;
+  top: 12px;
+  border-left: 1px solid;
+  border-top: 1px solid;
+}
+
+.corner-tag::after {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

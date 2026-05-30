@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ExternalLink, MapPinned, Radar } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -5,6 +6,13 @@ import { PageShell } from "@/components/PageShell";
 import { SectionHeader } from "@/components/SectionHeader";
 import { cities } from "@/data/cities";
 import { getPlacesByCity, isSupportedCity, mapUrl } from "@/lib/data";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export function generateStaticParams() {
   return cities.map((city) => ({ city: city.id }));

@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import { ArrowRight, CircleDot, MapPin, RadioTower, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { taglines } from "@/lib/constants";
 import { getCityTheme } from "@/lib/data";
+import { siteDescription, siteName } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Nairobi Edition",
+  description: siteDescription,
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    title: `${siteName} | Nairobi Edition`,
+    description: siteDescription
+  }
+};
 
 export default function LandingPage() {
   const theme = getCityTheme("nairobi");

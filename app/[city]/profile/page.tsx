@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Info, Palette, UserRound } from "lucide-react";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
@@ -5,6 +6,13 @@ import { ProfileStats } from "@/components/ProfileStats";
 import { SectionHeader } from "@/components/SectionHeader";
 import { cities } from "@/data/cities";
 import { getCity, getCityTheme, isSupportedCity } from "@/lib/data";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export function generateStaticParams() {
   return cities.map((city) => ({ city: city.id }));

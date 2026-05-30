@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { SavedPlacesClient } from "@/components/SavedPlacesClient";
 import { SectionHeader } from "@/components/SectionHeader";
 import { cities } from "@/data/cities";
 import { getPlacesByCity, isSupportedCity } from "@/lib/data";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export function generateStaticParams() {
   return cities.map((city) => ({ city: city.id }));

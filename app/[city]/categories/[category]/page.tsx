@@ -4,10 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { SectionHeader } from "@/components/SectionHeader";
+import { SeoJsonLd } from "@/components/SeoJsonLd";
 import { categories } from "@/data/categories";
 import { cities } from "@/data/cities";
-import type { IntelItem } from "@/data/types";
+import type { CategorySlug, IntelItem } from "@/data/types";
 import { getCategoryItems, getCityTheme, isSupportedCity } from "@/lib/data";
+import { getSeoTopic } from "@/data/seo";
+import { siteName, siteUrl } from "@/lib/site";
 
 export function generateStaticParams() {
   return cities.flatMap((city) => categories.map((category) => ({ city: city.id, category: category.slug })));
@@ -18,12 +21,17 @@ type CategoryPageProps = {
 };
 
 export async function generateMetadata({ params }: CategoryPageProps) {
-  const { category } = await params;
+  const { city, category } = await params;
   const categoryInfo = categories.find((item) => item.slug === category);
+  const seoTopic = isSupportedCity(city) ? getSeoTopic(city, category as CategorySlug) : undefined;
 
   return {
-    title: categoryInfo ? `${categoryInfo.label} | Unlocked` : "Category | Unlocked",
-    description: categoryInfo?.description ?? "Unlocked city category."
+    title: seoTopic?.title ?? (categoryInfo ? `${categoryInfo.label} in ${city} | ${siteName}` : `Category | ${siteName}`),
+    description: seoTopic?.description ?? categoryInfo?.description ?? "Unlocked city category.",
+    keywords: seoTopic?.keywords,
+    alternates: {
+      canonical: seoTopic?.path ? `${siteUrl}${seoTopic.path}` : undefined
+    }
   };
 }
 
@@ -43,9 +51,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const theme = getCityTheme(city);
   const categoryImage = theme.categoryImages[categoryInfo.slug] ?? theme.heroImage;
   const items = getCategoryItems(city, categoryInfo.slug);
+  const seoTopic = getSeoTopic(city, categoryInfo.slug);
+  const canonicalUrl = `${siteUrl}/${city}/categories/${categoryInfo.slug}`;
 
   return (
     <PageShell cityId={city}>
+      <SeoJsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: seoTopic?.title ?? `${categoryInfo.label} | ${siteName}`,
+          description: seoTopic?.description ?? categoryInfo.description,
+          url: canonicalUrl,
+          about: seoTopic?.keywords ?? [categoryInfo.label],
+          inLanguage: "en"
+        }}
+      />
       <div className="space-y-6 px-5 pb-6 pt-5">
         <Link className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-white/54" href={`/${city}/explore`}>
           <ArrowLeft size={14} /> Back to Explore
@@ -58,7 +79,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <span className="w-fit rounded-full border border-lime/25 bg-black/45 px-3 py-2 text-[0.62rem] font-black uppercase tracking-[0.22em] text-lime backdrop-blur">Local issue</span>
             <div>
               <h1 className="text-[4.1rem] font-black uppercase leading-[0.78] tracking-[-0.09em]">{categoryInfo.label}</h1>
-              <p className="mt-3 max-w-xs text-sm font-semibold leading-6 text-white/68">{categoryInfo.description}</p>
+              <p className="mt-3 max-w-xs text-sm font-semibold leading-6 text-white/68">{seoTopic?.description ?? categoryInfo.description}</p>
             </div>
           </div>
         </section>

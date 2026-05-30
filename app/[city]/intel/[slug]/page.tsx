@@ -1,12 +1,15 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ArrowLeft, ExternalLink, MapPin, Shirt, Sparkles, WalletCards } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
+import { SeoJsonLd } from "@/components/SeoJsonLd";
 import { categories } from "@/data/categories";
 import { categoryItems } from "@/data/categoryItems";
 import { mapUrl, getCategoryItem, isSupportedCity } from "@/lib/data";
+import { siteName, siteUrl } from "@/lib/site";
 
 export function generateStaticParams() {
   return categoryItems.map((item) => ({ city: item.cityId, slug: item.slug }));
@@ -16,13 +19,17 @@ type IntelDetailPageProps = {
   params: Promise<{ city: string; slug: string }>;
 };
 
-export async function generateMetadata({ params }: IntelDetailPageProps) {
+export async function generateMetadata({ params }: IntelDetailPageProps): Promise<Metadata> {
   const { city, slug } = await params;
   const item = getCategoryItem(city, slug);
+  const canonical = item ? `${siteUrl}/${city}/intel/${item.slug}` : undefined;
 
   return {
-    title: item ? `${item.title} | Unlocked` : "Intel | Unlocked",
-    description: item?.summary ?? "Unlocked local city intel."
+    title: item ? `${item.title} in Nairobi | ${siteName}` : `Intel | ${siteName}`,
+    description: item?.summary ?? "Unlocked local city intel.",
+    alternates: {
+      canonical
+    }
   };
 }
 
@@ -40,8 +47,26 @@ export default async function IntelDetailPage({ params }: IntelDetailPageProps) 
   }
 
   const category = categories.find((entry) => entry.slug === item.categorySlug);
+  const canonical = `${siteUrl}/${city}/intel/${item.slug}`;
+
   return (
     <PageShell cityId={city}>
+      <SeoJsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: item.title,
+          description: item.summary,
+          url: canonical,
+          image: [item.image],
+          author: {
+            "@type": "Organization",
+            name: siteName
+          },
+          about: [category?.label ?? item.kicker, ...(item.tags ?? [])],
+          inLanguage: "en"
+        }}
+      />
       <article className="pb-6">
         <div className="relative h-[31rem] overflow-hidden">
           <Image alt="" className="object-cover saturate-[0.78] contrast-125" fill priority sizes="100vw" src={item.image} />

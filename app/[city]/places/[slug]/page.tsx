@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ArrowLeft, ExternalLink, MapPin, MessageCircle, ShieldCheck, Star } from "lucide-react";
 import Image from "next/image";
@@ -5,8 +6,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { SaveButton } from "@/components/SaveButton";
+import { SeoJsonLd } from "@/components/SeoJsonLd";
 import { places } from "@/data/places";
 import { getGuidesByCity, getPlace, isSupportedCity, mapUrl } from "@/lib/data";
+import { siteName, siteUrl } from "@/lib/site";
 
 export function generateStaticParams() {
   return places.map((place) => ({ city: place.cityId, slug: place.slug }));
@@ -16,13 +19,17 @@ type PlacePageProps = {
   params: Promise<{ city: string; slug: string }>;
 };
 
-export async function generateMetadata({ params }: PlacePageProps) {
+export async function generateMetadata({ params }: PlacePageProps): Promise<Metadata> {
   const { city, slug } = await params;
   const place = getPlace(city, slug);
+  const canonical = place ? `${siteUrl}/${city}/places/${place.slug}` : undefined;
 
   return {
-    title: place ? `${place.name} | Unlocked` : "Place | Unlocked",
-    description: place?.summary ?? "Local Nairobi place intel."
+    title: place ? `${place.name} in Nairobi | ${siteName}` : `Place | ${siteName}`,
+    description: place?.summary ?? "Local Nairobi place intel.",
+    alternates: {
+      canonical
+    }
   };
 }
 
@@ -42,6 +49,22 @@ export default async function PlacePage({ params }: PlacePageProps) {
 
   return (
     <PageShell cityId={city}>
+      <SeoJsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "TouristAttraction",
+          name: place.name,
+          description: place.summary,
+          url: `${siteUrl}/${city}/places/${place.slug}`,
+          image: [place.image],
+          touristType: ["local discovery", "city intel"],
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: place.area,
+            addressCountry: "KE"
+          }
+        }}
+      />
       <article>
         <div className="relative h-[29rem] overflow-hidden">
           <Image alt={place.name} className="object-cover" fill priority sizes="100vw" src={place.image} />

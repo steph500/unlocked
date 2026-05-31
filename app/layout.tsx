@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
 import { siteDescription, siteImage, siteName, siteUrl } from "@/lib/site";
 
@@ -67,9 +68,12 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="en">
       <body>
+        {measurementId ? <GoogleAnalytics measurementId={measurementId} /> : null}
         <RegisterServiceWorker />
         {children}
       </body>

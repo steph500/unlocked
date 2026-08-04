@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -17,17 +17,23 @@ type GoogleAnalyticsProps = {
 
 export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
   const pathname = usePathname();
+  const firstRender = useRef(true);
 
   useEffect(() => {
+    // The landing pageview is sent by the init script below. Sending it again
+    // here would double-count, so the first run is skipped and this effect only
+    // reports client-side navigations.
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     if (!measurementId || typeof window === "undefined" || typeof window.gtag !== "function") {
       return;
     }
 
     const query = window.location.search;
-    const pagePath = `${pathname}${query}`;
-
     window.gtag("config", measurementId, {
-      page_path: pagePath
+      page_path: `${pathname}${query}`
     });
   }, [measurementId, pathname]);
 
@@ -40,7 +46,12 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('js', new Date());
-          gtag('config', '${measurementId}', { send_page_view: false });
+          // Sends the landing pageview. Previously this was suppressed and the
+          // effect above was expected to send it, but both scripts load
+          // afterInteractive so the effect ran first, found window.gtag
+          // undefined, bailed, and never ran again — every visitor who landed
+          // and left was invisible.
+          gtag('config', '${measurementId}');
         `}
       </Script>
     </>
